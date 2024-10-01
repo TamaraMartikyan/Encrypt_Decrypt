@@ -1,19 +1,19 @@
 #include <stddef.h>
-#include "Shablon.h"
+#include "Cesar.h"
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>
 
-Shablon::Shablon() : mArrSize(0)
+Cesar::Cesar() : mArrSize(0)
 {
 }
 
-Shablon::~Shablon()
+Cesar::~Cesar()
 {
 }
 
-int Shablon::Encrypt(const unsigned char* psource, unsigned int sourcesize, unsigned char* pout, unsigned int& outsize)
+int Cesar::Encrypt(const unsigned char* psource, unsigned int sourcesize, unsigned char* pout, unsigned int& outsize)
 {
 	if (!psource || !pout || !sourcesize || !outsize || outsize< sourcesize)
 		return -1;
@@ -25,7 +25,7 @@ int Shablon::Encrypt(const unsigned char* psource, unsigned int sourcesize, unsi
 	return 0;
 }
 
-int Shablon::Decrypt(const unsigned char* psource, unsigned int sourcesize, unsigned char* pout, unsigned int& outsize)
+int Cesar::Decrypt(const unsigned char* psource, unsigned int sourcesize, unsigned char* pout, unsigned int& outsize)
 {
 	if (!psource || !pout || !sourcesize || !outsize || outsize < sourcesize)
 		return -1;
@@ -37,7 +37,7 @@ int Shablon::Decrypt(const unsigned char* psource, unsigned int sourcesize, unsi
 	return 0;
 }
 
-int Shablon::SetTemplateTable(const unsigned char* pEncodeArr, const unsigned char* pDecodeArr, size_t size)
+int Cesar::SetTemplateTable(const unsigned char* pEncodeArr, const unsigned char* pDecodeArr, size_t size)
 {
 	if (!pEncodeArr || !pDecodeArr || !size)
 		return -1;
