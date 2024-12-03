@@ -1,118 +1,66 @@
-@echo off
-:menu
-cls
-echo ===================================
-echo       Windows Utility Menu
-echo ===================================
-echo 1. Get IP Address
-echo 2. Make Traceroute
-echo 3. Resolve DNS Name
-echo 4. Encrypt Text (Blowfish/Caesar)
-echo 5. Decrypt Text
-echo 6. Encrypt File (Blowfish/Caesar)
-echo 7. Decrypt File
-echo 8. Compress File (LZ77)
-echo 9. Decompress File
-echo 10. Calculate Hash Value (Text/File)
-echo 11. Ping Host
-echo 12. View System Information
-echo 13. View Running Processes
-echo 14. Shutdown/Restart System
-echo 15. Check Disk Space
-echo 16. Create New User Account
-echo 17. Enable/Disable Firewall
-echo 18. Generate Random Password
-echo 19. Check Network Connections
-echo 20. Clear DNS Cache
-echo 0. Exit
-echo ===================================
-set /p choice="Select an option: "
+# run in windows powershell
+while ($true) {
+    Write-Host "=== Menu ==="
+    Write-Host "1. Display device's IPv4 and IPv6 addresses"
+    Write-Host "2. Network route (traceroute) to a specified hostname/URL"
+    Write-Host "3. Display IP address of a specified hostname/URL"
+    Write-Host "4. Encrypt a file or entered text"
+    Write-Host "5. Decrypt a file or entered text"
+    Write-Host "6. Compress a file or entered text"
+    Write-Host "7. Decompress a file or entered text"
+    Write-Host "8. Calculate the hash value of a file"
+    Write-Host "9. Exit"
+    $choice = Read-Host "Select an option (1-9)"
 
-if "%choice%"=="1" goto get_ip
-if "%choice%"=="2" goto traceroute
-if "%choice%"=="3" goto resolve_dns
-if "%choice%"=="4" goto encrypt_text
-if "%choice%"=="5" goto decrypt_text
-if "%choice%"=="6" goto encrypt_file
-if "%choice%"=="7" goto decrypt_file
-if "%choice%"=="8" goto compress_file
-if "%choice%"=="9" goto decompress_file
-if "%choice%"=="10" goto hash_value
-if "%choice%"=="19" goto network_connections
-if "%choice%"=="2" goto traceroute
-goto menu
-
-:get_ip
-ipconfig | findstr "IPv4" 
-ipconfig | findstr "IPv6"
-pause
-goto menu
-
-:traceroute
-set /p target="Enter the hostname or IP address: "
-tracert %target%
-pause
-goto menu
-
-:resolve_dns
-set /p dns_name="Enter the DNS name: "
-nslookup %dns_name%
-pause
-goto menu
-
-:encrypt_text
-set /p text="Enter text to encrypt: "
-echo Blowfish and Caesar encryption is not supported natively.
-echo Use external tools or Python for implementation.
-pause
-goto menu
-
-:decrypt_text
-set /p text="Enter text to decrypt: "
-echo Blowfish and Caesar decryption is not supported natively.
-echo Use external tools or Python for implementation.
-pause
-goto menu
-
-:encrypt_file
-set /p file="Enter the file path to encrypt: "
-echo File encryption requires external tools.
-pause
-goto menu
-
-:decrypt_file
-set /p file="Enter the file path to decrypt: "
-echo File decryption requires external tools.
-pause
-goto menu
-
-:compress_file
-set /p file="Enter the file path to compress: "
-echo LZ77 compression requires external tools or scripts.
-pause
-goto menu
-
-:decompress_file
-set /p file="Enter the file path to decompress: "
-echo LZ77 decompression requires external tools or scripts.
-pause
-goto menu
-
-:hash_value
-set /p input="Enter text or file path to calculate hash: "
-echo Default Hashing. Result in def-hash-%input% file
-certutil -hashfile %input% > def-hash-%input% 
-echo Calculate Hash Value with MD5. Result in MD5-%input% file 
-certutil -hashfile %input% MD5 > MD5%input%
-echo Calculate Hash Value with SHA256. Result in SHA256-%input% file 
-certutil -hashfile %input% SHA256 > SHA256-%input%
-pause
-goto menu
-
-:network_connections
-netstat -an
-pause
-goto menu
-
-:exit
-echo Exiting... Goodbye!
+    switch ($choice) {
+        1 {
+            Write-Host "=== IPv4 and IPv6 Addresses ==="
+            Get-NetIPAddress | Select-Object -Property IPAddress
+        }
+        2 {
+            $hostname = Read-Host "Enter hostname or URL for traceroute"
+            tracert $hostname
+        }
+        3 {
+            $hostname = Read-Host "Enter hostname or URL"
+            $ip = [System.Net.Dns]::GetHostAddresses($hostname) | ForEach-Object { $_.IPAddressToString }
+            Write-Host "IP Address: $ip"
+        }
+        4 {
+            $input = Read-Host "Enter text to encrypt"
+            $encrypted = ConvertTo-SecureString $input -AsPlainText -Force | ConvertFrom-SecureString
+            $encrypted | Out-File -FilePath "encrypted.txt"
+            Write-Host "Encrypted text saved to encrypted.txt"
+        }
+        5 {
+            $file = Read-Host "Enter the encrypted file name (default: encrypted.txt)"
+            if (-not $file) { $file = "encrypted.txt" }
+            $encryptedText = Get-Content -Path $file
+            $decrypted = ConvertTo-SecureString $encryptedText | ConvertFrom-SecureString -AsPlainText
+            $decrypted | Out-File -FilePath "decrypted.txt"
+            Write-Host "Decrypted text saved to decrypted.txt"
+        }
+        6 {
+            $file = Read-Host "Enter file name to compress"
+            Compress-Archive -Path $file -DestinationPath "$file.zip"
+            Write-Host "File compressed to $file.zip"
+        }
+        7 {
+            $file = Read-Host "Enter the compressed file name to decompress (e.g., file.zip)"
+            Expand-Archive -Path $file -DestinationPath . -Force
+            Write-Host "File decompressed to current directory"
+        }
+        8 {
+            $file = Read-Host "Enter the file name to calculate hash"
+            $hash = Get-FileHash -Path $file -Algorithm SHA256
+            Write-Host "SHA256 Hash: $($hash.Hash)"
+        }
+        9 {
+            Write-Host "Exiting..."
+            break
+        }
+        default {
+            Write-Host "Invalid option. Please select again."
+        }
+    }
+}
