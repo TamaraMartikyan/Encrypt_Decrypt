@@ -1,25 +1,18 @@
 #include "UDPServer.h"
 #include <cstring>
 #include <iostream>
-#include <string>
 
-int main() {
-    struct sockaddr_in clientAddr;
-    int clientAddrLen = sizeof(clientAddr);
-    char buffer[BUFLEN];
+UDPServer::UDPServer(unsigned short serverport) : UDPSocket() {
+    mServerPort = serverport;
 
-    UDPServer server(PORT);
-    std::cout << "UDP Server running on port " << PORT << "..." << std::endl;
+    mServer.sin_family = AF_INET;
+    mServer.sin_addr.s_addr = INADDR_ANY;
+    mServer.sin_port = htons(mServerPort);
 
-    while (true) {
-        memset(buffer, 0, BUFLEN);
-        server.RecvDatagram(buffer, BUFLEN, (struct sockaddr*)&clientAddr, &clientAddrLen);
-        std::cout << "Received from client: " << buffer << std::endl;
-
-        std::string response = "Server received: ";
-        response += buffer;
-        server.SendDatagram((char*)response.c_str(), response.length(), (struct sockaddr*)&clientAddr, clientAddrLen);
+    if (bind(s, (struct sockaddr*)&mServer, sizeof(mServer)) < 0) {
+        perror("Bind failed");
+        exit(EXIT_FAILURE);
     }
-
-    return 0;
 }
+
+UDPServer::~UDPServer() {}
